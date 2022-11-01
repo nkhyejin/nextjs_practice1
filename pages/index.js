@@ -6,31 +6,13 @@ export default function Home({ results }) {
   const router = useRouter();
   console.log(router);
   const onClick = (id, title) => {
-    // router.push(`/movies/${id}`);
-    router.push(
-      {
-        pathname: `/movies/${id}`,
-        query: {
-          title,
-        },
-      },
-      `/movies/${id}`
-    );
+    router.push(`/movies/${title}/${id}`);
   };
   return (
     <div className="container">
       <Seo title="Home" />
       {results?.map((movie) => (
-        <Link
-          id={movie.id}
-          href={{
-            pathname: `/movies/${id}`,
-            query: {
-              title,
-            },
-          }}
-          as={`/movies/${movie.id}`}
-        >
+        <Link href={`/movies/${movie.original_title}/${movie.id}`}>
           <a>
             <div
               onClick={() => onClick(movie.id, movie.original_title)}
