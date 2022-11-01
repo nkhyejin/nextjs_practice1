@@ -1,25 +1,49 @@
 import Seo from "../components/Seo";
-import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
-export default function Home() {
-  const [movies, setMovies] = useState();
-
-  useEffect(() => {
-    console.log("useEffect");
-    (async () => {
-      const { results } = await (await fetch("/api/movies")).json();
-      setMovies(results);
-    })();
-  }, []);
+export default function Home({ results }) {
+  const router = useRouter();
+  console.log(router);
+  const onClick = (id, title) => {
+    // router.push(`/movies/${id}`);
+    router.push(
+      {
+        pathname: `/movies/${id}`,
+        query: {
+          title,
+        },
+      },
+      `/movies/${id}`
+    );
+  };
   return (
     <div className="container">
       <Seo title="Home" />
-      {!movies && <h4>Loading...</h4>}
-      {movies?.map((movie) => (
-        <div className="movie" key={movie.id}>
-          <img src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`} />
-          <h4>{movie.original_title}</h4>
-        </div>
+      {results?.map((movie) => (
+        <Link
+          id={movie.id}
+          href={{
+            pathname: `/movies/${id}`,
+            query: {
+              title,
+            },
+          }}
+          as={`/movies/${movie.id}`}
+        >
+          <a>
+            <div
+              onClick={() => onClick(movie.id, movie.original_title)}
+              className="movie"
+              key={movie.id}
+            >
+              <img
+                src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
+              />
+              <h4>{movie.original_title}</h4>
+            </div>
+          </a>
+        </Link>
       ))}
       <style jsx>{`
         .container {
@@ -27,6 +51,9 @@ export default function Home() {
           grid-template-columns: 1fr 1fr;
           padding: 20px;
           gap: 20px;
+        }
+        .movie {
+          cursor: pointer;
         }
         .movie img {
           max-width: 100%;
@@ -44,4 +71,17 @@ export default function Home() {
       `}</style>
     </div>
   );
+}
+
+//이 코드는 무조건 서버에서만 돌아간다.
+// server side를 통해 props를 page로 보낸다.
+export async function getServerSideProps() {
+  const { results } = await (
+    await fetch("http://localhost:3000/api/movies")
+  ).json();
+  return {
+    props: {
+      results,
+    },
+  };
 }
